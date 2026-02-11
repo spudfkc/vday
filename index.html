@@ -264,10 +264,54 @@
   /* SCENE 3 */
   #scene-celebration {
     position:absolute; inset:0;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    display:flex; flex-direction:column; align-items:center;
     z-index:20; opacity:0; pointer-events:none; transition:opacity 1s ease;
+    overflow-y:auto; overflow-x:hidden; padding:60px 20px 40px;
+    justify-content:flex-start;
   }
   #scene-celebration.visible { opacity:1; pointer-events:auto; }
+
+  .photo-gallery {
+    display:flex; flex-wrap:wrap; justify-content:center; gap:20px;
+    max-width:700px; width:100%; margin-top:30px; padding-bottom:40px;
+  }
+
+  .polaroid {
+    background:white; padding:10px 10px 40px; border-radius:4px;
+    box-shadow:0 6px 25px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.08);
+    transform:scale(0) rotate(0deg); opacity:0;
+    transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease, box-shadow 0.3s ease;
+    cursor:pointer; position:relative;
+    flex:0 0 auto; width:calc(50% - 14px); max-width:260px;
+  }
+
+  .polaroid.visible {
+    opacity:1;
+    transform:rotate(var(--rot)) scale(1);
+  }
+
+  .polaroid:hover {
+    transform:rotate(0deg) scale(1.08) !important;
+    box-shadow:0 12px 40px rgba(232,69,107,0.3), 0 4px 12px rgba(0,0,0,0.1);
+    z-index:5;
+  }
+
+  .polaroid img {
+    width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:2px;
+    display:block;
+  }
+
+  .polaroid .caption {
+    font-family:'Caveat',cursive; font-size:1.1rem; color:var(--wine);
+    text-align:center; margin-top:8px; position:absolute;
+    bottom:10px; left:10px; right:10px;
+  }
+
+  @media (max-width:500px) {
+    .polaroid { width:calc(50% - 10px); max-width:180px; padding:6px 6px 32px; }
+    .polaroid .caption { font-size:0.9rem; bottom:7px; }
+    .photo-gallery { gap:12px; }
+  }
   .celebration-hearts { font-size:4rem; margin-bottom:16px; opacity:0; }
   #scene-celebration.visible .celebration-hearts { animation:celebReveal 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.1s forwards; }
   .celebration-text {
@@ -340,6 +384,7 @@
   <div class="celebration-hearts">💖😍💖</div>
   <div class="celebration-text">🎉🎉🎉<br>she said yes!</div>
   <div class="celebration-sub">Happy Valentine's Day, Tati 💕</div>
+  <div class="photo-gallery" id="photoGallery"></div>
 </div>
 
 <div class="confetti-container" id="confettiContainer"></div>
@@ -697,6 +742,31 @@ function sayYes() {
         h.style.fontSize=(3+R()*6)+'rem'; h.style.animationDuration=(3+R()*3)+'s';
         body.appendChild(h); setTimeout(()=>h.remove(),7000);
       },i*200);
+    }
+    // Pop in photos as polaroids
+    const gallery = $('photoGallery');
+    const captions = ['💕','us! 🥰','💖💖','cuties','❤️‍🔥','🫶','forever','💘'];
+    for (let i=1; i<=8; i++) {
+      const pol = document.createElement('div');
+      pol.className = 'polaroid';
+      pol.style.setProperty('--rot', ((R()-0.5)*16)+'deg');
+      const img = document.createElement('img');
+      img.src = `tatinick${i}.jpg`;
+      img.alt = `Nick & Tati ${i}`;
+      img.loading = 'lazy';
+      const cap = document.createElement('div');
+      cap.className = 'caption';
+      cap.textContent = captions[i-1];
+      pol.appendChild(img);
+      pol.appendChild(cap);
+      gallery.appendChild(pol);
+
+      // Stagger pop-in with sparkle burst
+      setTimeout(() => {
+        pol.classList.add('visible');
+        const pr = pol.getBoundingClientRect();
+        sparkleBurst(pr.left+pr.width/2, pr.top+pr.height/2, 8);
+      }, 1500 + i*400);
     }
   },500);
 }
