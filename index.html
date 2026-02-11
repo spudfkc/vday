@@ -568,8 +568,8 @@
     <span class="letter-deco">💕</span>
     <div class="letter-greeting">Dear Tati,</div>
     <div class="letter-question">Will you be my<br>Valentine?</div>
-    <div class="letter-name">— yours truly 🌹</div>
-    <div class="letter-subtitle">( pick wisely... or try to 😏 )</div>
+    <div class="letter-name">— Nick 🌹</div>
+    <div class="letter-subtitle">( pick wisely... 😏 )</div>
     <div class="btn-row" id="btnRow">
       <button class="btn-yes" onclick="sayYes()">Yes! 💖</button>
       <button class="btn-no" id="btnNo">No</button>
@@ -579,8 +579,8 @@
 
 <!-- SCENE 3: Celebration -->
 <div id="scene-celebration">
-  <div class="celebration-hearts">💖🥰💖</div>
-  <div class="celebration-text">Yaaay!! 🎉<br>I knew you'd say yes!</div>
+  <div class="celebration-hearts">💖😍💖</div>
+  <div class="celebration-text">🎉🎉🎉<br>she said yes!</div>
   <div class="celebration-sub">Happy Valentine's Day, Tati 💕</div>
 </div>
 
@@ -725,8 +725,34 @@
   }
 
   btnNo.addEventListener('mouseenter', escapeNo);
-  btnNo.addEventListener('touchstart', (e) => { e.preventDefault(); escapeNo(e); });
-  btnNo.addEventListener('click', (e) => { e.preventDefault(); escapeNo(e); });
+  
+  // Mobile: prevent actual click and flee on any touch
+  btnNo.addEventListener('touchstart', (e) => { 
+    e.preventDefault(); 
+    e.stopPropagation();
+    escapeNo(e); 
+  }, { passive: false });
+  
+  btnNo.addEventListener('click', (e) => { 
+    e.preventDefault(); 
+    e.stopPropagation();
+    escapeNo(e); 
+  });
+
+  // Mobile: also flee if finger drags near the button
+  document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    const rect = btnNo.getBoundingClientRect();
+    const pad = 30; // proximity threshold
+    if (
+      touch.clientX > rect.left - pad &&
+      touch.clientX < rect.right + pad &&
+      touch.clientY > rect.top - pad &&
+      touch.clientY < rect.bottom + pad
+    ) {
+      escapeNo(e);
+    }
+  }, { passive: true });
 
   // ============ YES CELEBRATION ============
   function sayYes() {
